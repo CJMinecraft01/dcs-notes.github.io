@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang=" en-US">
+
+<head>
+
+    
+    <meta charset="UTF-8"><script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script><!-- Include tocNAV javascript -->
+    <script type="text/javascript" src="/dcs-notes.github.io/assets/js/tocNav.js"></script>
+
+    <!-- seo used to be here -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style"
+        type="text/css" crossorigin>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="/dcs-notes.github.io/assets/css/style.css">
+</head>
+
+<body>
+    <div id="mainGrid" class="container">
+        <header style="padding:10px;" class="page-header notes-header" role="banner">
+            <h1 class="project-name">Binary search and self-balancing trees</h1>
+        </header>
+        <div title="Table of Contents" class="buttonCol" onclick="toggleNav()">
+            <div class="navArrow">
+                <i></i>
+            </div>
+        </div>
+        <div class="navBox">
+            <div id="sidenav" class="sideNav closedNav">
+                <h2 style="margin-left: 10px;">Table of Contents</h2><ul><li><a href="#binary-search-trees">Binary search trees</a><ul><li><a href="#properties">Properties</a></li><li><a href="#operations">Operations</a><ul><li><a href="#searching">Searching</a></li><li><a href="#insertion">Insertion</a></li><li><a href="#deletion">Deletion</a></li></ul></li><li><a href="#algorithm">Algorithm</a></li></ul></li><li><a href="#avl-trees">AVL trees</a><ul><li><a href="#properties-of-a-balanced-tree">Properties of a balanced tree</a></li><li><a href="#operations-1">Operations</a><ul><li><a href="#tri-node-restructuring">Tri-node restructuring</a></li><li><a href="#re-balancing-vs-restructuring">Re-balancing VS restructuring</a></li><li><a href="#insertion-1">Insertion</a></li><li><a href="#deletion-1">Deletion</a></li></ul></li><li><a href="#performance">Performance</a></li></ul></li></ul>
+</div>
+        </div>
+        
+        <div class="contents">
+            <main id="content" class="main-content" role="main">
+                <div class="partNav"><a href="/dcs-notes.github.io/CS126/part9.html" title="Skip Lists">👈Prev</a><a href="./" title="CS126 Home">🏡CS126</a><a href="/dcs-notes.github.io/CS126/part11.html" title="Graphs">Next👉</a></div>
+                <!-- Main Content of markdown or sub-layouts-->
+                <!-- Each module has its own layout to allow module layouts to be customised -->
+<!-- The layout name is also used by the notes layout to display the correct module code -->
+
+<h1 id="binary-search-trees">Binary search trees</h1>
+
+<p><strong>Binary search trees</strong> can be used as a concrete implementation of ordered maps, with items being stored in the tree ordered by their key</p>
+
+<ul>
+  <li>Search tables are another concrete implementation of ordered maps, but instead use a sorted sequence, normally an array, which is searchable with binary search in \(O(log\ n)\), but requires \(O(n)\) for insertion and removal. This means they are only effective for either small maps, or cases where there are few insertions and deletions</li>
+</ul>
+
+<p>They support nearest neighbour queries, finding next highest and next lowest items</p>
+
+<h2 id="properties">Properties</h2>
+
+<p>The properties of binary search trees are:</p>
+
+<ul>
+  <li>External nodes store no items</li>
+  <li>All left children of any internal node have a smaller key than their parent node</li>
+  <li>All right children of any internal node have a larger key than their parent node</li>
+  <li>In-order traversals yield a sequence of the keys in ascending order</li>
+</ul>
+
+<h2 id="operations">Operations</h2>
+
+<h3 id="searching">Searching</h3>
+
+<p>Start at the root, and recursively proceed down the appropriate subtrees until the key or an external node is found</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Function Search(n, k)
+	If n is an external node
+		Return that the key is not in the tree
+	Else if the key being searched for is less than the value of the current node
+		Return Search called on the left child of n, and the same k
+	Else if the key being searched for is greater than the value of the current node
+		Return Search called on the right child of n, and the same k
+	Else (the key is equal to the one being search for)
+		Return that the key is in the tree
+
+Let r &lt;- the root node of the tree to search
+Let k &lt;- the key to search for
+Search(r, k)
+</code></pre></div></div>
+
+<h3 id="insertion">Insertion</h3>
+
+<p>Perform the searching operation, but when an external node is found, instead of returning that the key is not present, set that internal node as the key to insert, and give it two external child nodes</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Let e &lt;- the external node terminating the search algorithm
+Set the value of e to the value of the node to insert
+Add two extenral child nodes to e so that it is now internal
+</code></pre></div></div>
+
+<h3 id="deletion">Deletion</h3>
+
+<p>Dependent on the number of children of the node to delete, different operations are needed to delete the node</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>If the node has no internal children
+	Overwrite the node to become an empty external node
+Else if the node has only one internal child
+	Overwrite it with the internal child node
+Else (the node has two internal children)
+	Let i &lt;- node that immediately follows it in an in-order traversal
+	Overwrite the node with a copy of i
+	Set i to be external, and discard its left child, which must itself be an external node
+</code></pre></div></div>
+
+<h2 id="algorithm">Algorithm</h2>
+
+<p>In all cases, the space complexity is \(O(n)\)</p>
+
+<p>The time complexity for searching, inserting and deleting is dependent on the height of the tree:</p>
+<ul>
+  <li>If the tree is balanced, then the height is \(log\ n\), so the time for these operations is \(O(log\ n)\)</li>
+  <li>In the worst case, the tree can be totally unbalanced, just a straight line of internal nodes, in which case the height is \(n\), so the time for these operations is \(O(n)\)</li>
+</ul>
+
+<h1 id="avl-trees">AVL trees</h1>
+
+<p><strong>AVL trees</strong> are a concrete implementation of self-balancing binary search tree, with insertion and deletion operations designed to re-arrange the tree to ensure it remains balanced. It is named after its creators, Adelson-Velsky and Landis</p>
+
+<p>Other self-balancing binary search trees exist, such as red-black trees, but this is a common approach to implementing such an ADT</p>
+
+<h2 id="properties-of-a-balanced-tree">Properties of a balanced tree</h2>
+
+<p>The a tree to be balanced:</p>
+
+<ul>
+  <li>Each node has at most two child nodes</li>
+  <li>For every internal node in the tree, the heights of the child subtrees can differ by at most one</li>
+</ul>
+
+<p>These requirements ensure that the maximum height to store \(n\) keys is \(log\ n\), which can be proved by induction</p>
+
+<h2 id="operations-1">Operations</h2>
+
+<p>Searching is approached as it is in a normal binary search tree</p>
+
+<h3 id="tri-node-restructuring">Tri-node restructuring</h3>
+
+<h3 id="re-balancing-vs-restructuring">Re-balancing VS restructuring</h3>
+
+<h3 id="insertion-1">Insertion</h3>
+
+<h3 id="deletion-1">Deletion</h3>
+
+<h2 id="performance">Performance</h2>
+
+<p>In all cases, the space complexity is \(O(n)\), and searching takes \(O(log\ n)\) time -  as with any balanced binary tree</p>
+
+<p>Insertion and deletion are also \(O(log\ n)\), as searching for the element is \(O(log\ n)\), and then restructuring the tree to maintain the balance property is \(O(log\ n)\), so the total is also \(O(log\ n)\)</p>
+
+
+                
+                <footer class="site-footer">
+                    
+                    <span class="site-footer-owner"><a href="https://github.com/CSRG-Group/dcs-notes.github.io">dcs-notes.github.io</a> is maintained by <a href="https://github.com/CSRG-Group">CSRG-Group</a>.</span>
+                    
+                </footer>
+            </main>
+        </div>
+    </div>
+</body>
+
+</html>

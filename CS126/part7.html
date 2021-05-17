@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang=" en-US">
+
+<head>
+
+    
+    <meta charset="UTF-8"><script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script><!-- Include tocNAV javascript -->
+    <script type="text/javascript" src="/dcs-notes.github.io/assets/js/tocNav.js"></script>
+
+    <!-- seo used to be here -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style"
+        type="text/css" crossorigin>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="/dcs-notes.github.io/assets/css/style.css">
+</head>
+
+<body>
+    <div id="mainGrid" class="container">
+        <header style="padding:10px;" class="page-header notes-header" role="banner">
+            <h1 class="project-name">Priority queues</h1>
+        </header>
+        <div title="Table of Contents" class="buttonCol" onclick="toggleNav()">
+            <div class="navArrow">
+                <i></i>
+            </div>
+        </div>
+        <div class="navBox">
+            <div id="sidenav" class="sideNav closedNav">
+                <h2 style="margin-left: 10px;">Table of Contents</h2><ul><li><a href="#priority-queues-adt">Priority queues (ADT)</a></li><li><a href="#implementations">Implementations</a><ul><li><a href="#unsorted-list-based">Unsorted list based</a></li><li><a href="#sorted-list-based">Sorted list based</a></li><li><a href="#heap-based">Heap based</a></li></ul></li><li><a href="#comparators">Comparators</a></li><li><a href="#sorting-with-list-based-priority-queues">Sorting with list based priority queues</a></li></ul>
+</div>
+        </div>
+        
+        <div class="contents">
+            <main id="content" class="main-content" role="main">
+                <div class="partNav"><a href="/dcs-notes.github.io/CS126/part6.html" title="Trees">👈Prev</a><a href="./" title="CS126 Home">🏡CS126</a><a href="/dcs-notes.github.io/CS126/part8.html" title="Heaps">Next👉</a></div>
+                <!-- Main Content of markdown or sub-layouts-->
+                <!-- Each module has its own layout to allow module layouts to be customised -->
+<!-- The layout name is also used by the notes layout to display the correct module code -->
+
+<h2 id="priority-queues-adt">Priority queues (ADT)</h2>
+
+<blockquote>
+  <p><strong>Priority queues</strong> are (unsurprisingly) similar to queues, but items are sorted in order of a property “priority”, the assigned priorities specify which element leaves first (is dequeued). Unlike maps, multiple elements can have the same priority.</p>
+</blockquote>
+
+<p>These priorities, usually called keys, must form a total order relation, for example \(x \leq y\). We often use comparators on keys to form this total order relation.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Fundamental Operations</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">enqueue(k,v)</code></td>
+      <td>Insert an entry with key <strong><em>k</em></strong> and value <strong><em>v</em></strong> into the queue, where <strong><em>k</em></strong> determines its position in the queue.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">dequeue()</code></td>
+      <td>Element with the highest priority is removed from the queue.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">size()</code></td>
+      <td>Size of priority queue</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">isEmpty()</code></td>
+      <td>Returns <code class="language-plaintext highlighter-rouge">true</code> if priority queue is empty</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">first()</code></td>
+      <td>Returns the element with the highest priority – does not remove it.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><em>Note.</em> The names of these operations/methods can differ, it is important to understand their function and purpose to draw the link with concrete implementations.</p>
+
+<h2 id="implementations">Implementations</h2>
+
+<p>There are three common concrete implementations:</p>
+<ul>
+  <li>Unsorted list based</li>
+  <li>Sorted list</li>
+  <li>Heap based</li>
+</ul>
+
+<p>For both list based implementations, a positional/linked list should be used (for unsorted, doubly linked is needed), since we want to be able to grow the list, but don’t need to be able to index it</p>
+
+<h3 id="unsorted-list-based">Unsorted list based</h3>
+
+<p>To enqueue an item, we just add it to the end of the list, in \(O(1)\) time.</p>
+
+<p>To dequeue an item, we have to traverse the entire list to find the smallest item, taking \(O(n)\) time</p>
+
+<h3 id="sorted-list-based">Sorted list based</h3>
+
+<p>To enqueue an item, we have to traverse the list to find where to put it, taking \(O(n)\) time (but we normally wouldn’t need to traverse the entire list, unlike dequeuing in the unsorted implementation, which also must)</p>
+
+<p>To dequeue an item, we just take it from the front of the list, in \(O(1)\) time</p>
+
+<h3 id="heap-based">Heap based</h3>
+
+<p>This is covered in the section on heaps</p>
+
+<h2 id="comparators">Comparators</h2>
+
+<blockquote>
+  <p><strong>Comparators</strong> are used to “encapsulate[…] the action of comparing two objects from a given total order”</p>
+
+  <p><em>Data Structures and Algorithms in Java, Goodrich, Tamassia, Goldwasser</em>s</p>
+</blockquote>
+
+<p>The comparator is an object external to the keys being compared, not a property of the keys. See the 118 notes for a more full description.</p>
+
+<p>In this context, comparators would be used to provide the total ordering on objects inserted to the priority queue.</p>
+
+<h2 id="sorting-with-list-based-priority-queues">Sorting with list based priority queues</h2>
+
+<p>We can sort a set of items by enqueueing them one by one, using the priority as the total ordering to sort by, and then dequeuing them into a list will result in them being sorted.</p>
+
+<p>When the unsorted concrete implementation is used, this encodes “<strong>selection sort</strong>”. The steps taken in the sort are:</p>
+
+<ol>
+  <li>Enqueue all \(n\) elements, each taking \(O(1)\) time into the priority queue, taking \(O(n)\) time</li>
+  <li>Dequeue all the elements into sorted order, with the total calls taking \(O(n) + O(n-1) + ... + O(1)\) which is \(O(n^2)\) time. Hence, the <strong>total time complexity</strong> is \(O(n^2)\)</li>
+</ol>
+
+<p>When the sorted concrete implementation is used, this encodes “<strong>insertion sort</strong>”. The steps taken in the sort are:</p>
+
+<ol>
+  <li>Enqueue \(n\) elements, with the total calls taking \(O(1) + O(2) + ... + O(n)\), which is \(O(n^2)\) time</li>
+  <li>Dequeue all \(n\) items, each taking \(O(1)\), taking \(O(n)\) time. Hence, the <strong>total time complexity</strong> is \(O(n^2)\)</li>
+</ol>
+
+
+
+                
+                <footer class="site-footer">
+                    
+                    <span class="site-footer-owner"><a href="https://github.com/CSRG-Group/dcs-notes.github.io">dcs-notes.github.io</a> is maintained by <a href="https://github.com/CSRG-Group">CSRG-Group</a>.</span>
+                    
+                </footer>
+            </main>
+        </div>
+    </div>
+</body>
+
+</html>

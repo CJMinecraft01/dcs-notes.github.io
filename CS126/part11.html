@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang=" en-US">
+
+<head>
+
+    
+    <meta charset="UTF-8"><script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script><!-- Include tocNAV javascript -->
+    <script type="text/javascript" src="/dcs-notes.github.io/assets/js/tocNav.js"></script>
+
+    <!-- seo used to be here -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style"
+        type="text/css" crossorigin>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#157878">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="/dcs-notes.github.io/assets/css/style.css">
+</head>
+
+<body>
+    <div id="mainGrid" class="container">
+        <header style="padding:10px;" class="page-header notes-header" role="banner">
+            <h1 class="project-name">Graphs</h1>
+        </header>
+        <div title="Table of Contents" class="buttonCol" onclick="toggleNav()">
+            <div class="navArrow">
+                <i></i>
+            </div>
+        </div>
+        <div class="navBox">
+            <div id="sidenav" class="sideNav closedNav">
+                <h2 style="margin-left: 10px;">Table of Contents</h2><ul><li><a href="#graphs">Graphs</a><ul><li><a href="#graphs-as-a-mathematical-concept">Graphs as a mathematical concept</a><ul><li><a href="#terminology">Terminology</a></li><li><a href="#graph-properties">Graph properties</a></li></ul></li><li><a href="#graphs-as-an-adt">Graphs as an ADT</a></li><li><a href="#more-terminology">More terminology</a><ul><li><a href="#subgraphs">Subgraphs</a></li></ul></li></ul></li><li><a href="#depth-first-search">Depth-first search</a></li><li><a href="#breadth-first-search">Breadth-first search</a></li><li><a href="#directed-graphs">Directed graphs</a><ul><li><a href="#transitive-closure">Transitive closure</a></li><li><a href="#topological-ordering">Topological ordering</a></li></ul></li></ul>
+</div>
+        </div>
+        
+        <div class="contents">
+            <main id="content" class="main-content" role="main">
+                <div class="partNav"><a href="/dcs-notes.github.io/CS126/part10.html" title="Binary search and self-balancing trees">👈Prev</a><a href="./" title="CS126 Home">🏡CS126</a><a href="/dcs-notes.github.io/CS126/part12.html" title="General algorithms">Next👉</a></div>
+                <!-- Main Content of markdown or sub-layouts-->
+                <!-- Each module has its own layout to allow module layouts to be customised -->
+<!-- The layout name is also used by the notes layout to display the correct module code -->
+
+<h1 id="graphs">Graphs</h1>
+
+<h2 id="graphs-as-a-mathematical-concept">Graphs as a mathematical concept</h2>
+
+<p><strong>Graphs</strong> are defined as a pair \(G = (V, E)\) were \(V\) is a set of vertices, and \(E\) is an unordered collection of pairs of vertices, called edges, for example: \(G = (\{a, b, c\}, [(a,b), (b,c), (c,a)])\)</p>
+
+<p>Directed and undirected graphs</p>
+<ul>
+  <li>
+    <p>In undirected graphs, the edge pair indicates that both vertices are connected to each other</p>
+  </li>
+  <li>
+    <p>In directed graphs, the edge pair indicates that the first vertex is connected to the second, but not vice versa</p>
+  </li>
+</ul>
+
+<h3 id="terminology">Terminology</h3>
+
+<ul>
+  <li>Adjacent vertices - vertices with an edge between them</li>
+  <li>Edges incident on a vertex - edges which both connect to the same vertex</li>
+  <li>End vertices/endpoints - the two vertices in the pair that an edge connects to</li>
+  <li>Degree of a vertex - the number of edges that connect to a pair</li>
+  <li>Parallel edges - two edges both connecting the same nodes (reason why edges are an unordered collection, not a set)</li>
+  <li>Self-loop - an edge whose vertices are both the same</li>
+  <li>Path - a sequence of alternating vertices and edges, starting and ending in a vertex</li>
+  <li>Simple paths - paths containing no repeating vertices (hence are acyclic)</li>
+  <li>Cycle - a path starting and ending at the same vertex</li>
+  <li>Acyclic - a graph containing no cycles</li>
+  <li>Simple cycle - a path where the only repeated vertex is the starting/ending one</li>
+  <li>Length (of a path of cycle) - the number of edges in the path/cycle</li>
+  <li>Tree - a connected acyclic graph</li>
+</ul>
+
+<h3 id="graph-properties">Graph properties</h3>
+
+<ol>
+  <li>The sum of the degrees of the vertices in an undirected graph is an even number
+    <ul>
+      <li>Handshaking theorem - every edge must connect two vertices, so sum of degrees is twice the number of edges, which must be even</li>
+    </ul>
+  </li>
+  <li>
+    <p>An undirected graph with no self loops nor parallel edges, with number of edges \(m\) and number of vertices \(n\) fulfils the property \(m \leq \frac{n \cdot (n-1)}{2}\)</p>
+
+    <ul>
+      <li>
+        <p>The first vertex can connect to \(n-1\) vertices (all vertices bar itself), then the second can connect to \(n-2\) (all the vertices bar itself and the first vertex, which it is already connected to), and so on, giving the sum \(1+2+...+n\) , which is known to be \(\frac{n \cdot (n-1)}{2}\)</p>
+      </li>
+      <li>
+        <p>Fully connected graphs fulfil the property \(m = \frac{n \cdot (n-1)}{2}\)</p>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="graphs-as-an-adt">Graphs as an ADT</h2>
+
+<p><strong>Graphs</strong> are a “collection of vertex and edge objects”</p>
+
+<p>They have a large number of fundamental operations, to the extent it is unnecessary to enumerate them here, but they are essentially just accessor and mutator and count methods on the vertices and edges</p>
+
+<p>There are three main concrete implementations of the graph ADT</p>
+
+<ul>
+  <li>
+    <p>Edge list</p>
+
+    <ul>
+      <li>One list of vertices</li>
+      <li>One list of edges, each of which contain references to their endpoint vertices</li>
+    </ul>
+
+    <p><img src="images\edgeListGraph.png" alt="edgeListGraph" /></p>
+
+    <p>Image source: <em>Data Structures and Algorithms in Java, Goodrich, Tamassia, Goldwasser</em></p>
+  </li>
+  <li>
+    <p>Adjacency list</p>
+
+    <ul>
+      <li>Array containing a all of the nodes, each of which have a pointer to a list of the other nodes they connect to</li>
+    </ul>
+
+    <p><img src="images\adjacencyListGraph.png" alt="adjacencyListGraph" /></p>
+
+    <p>Image source: <em>Data Structures and Algorithms in Java, Goodrich, Tamassia, Goldwasser</em></p>
+  </li>
+  <li>
+    <p>Adjacency matrix</p>
+
+    <ul>
+      <li>2D array acts a lookup table for whether vertices have an edge connecting them</li>
+      <li>Square matrix, with each dimension being the number of vertices in the graph</li>
+      <li>Undirected graphs are symmetrical along the leading diagonal</li>
+    </ul>
+
+    <p><img src="images\adjacencyMatrixGraph.png" alt="adjacencyMatrixGraph" /></p>
+
+    <p>Image source: <em>Data Structures and Algorithms in Java, Goodrich, Tamassia, Goldwasser</em></p>
+  </li>
+</ul>
+
+<h2 id="more-terminology">More terminology</h2>
+
+<h3 id="subgraphs">Subgraphs</h3>
+
+<p>A subgraph of the graph \(G\) fulfils the two properties:</p>
+
+<ul>
+  <li>
+    <p>Its vertices are a subset of the vertices of \(G\)</p>
+  </li>
+  <li>
+    <p>Its edges are a subset of the edges of \(G\)</p>
+  </li>
+</ul>
+
+<p>A spanning subgraph contains all of the vertices in \(G\). This then gives rise to spanning trees, which are spanning subgraphs which are connected and acyclic</p>
+
+<h1 id="depth-first-search">Depth-first search</h1>
+
+<p>Depth-first search is a technique to traverse graphs. It takes \(O(n + m)\) time to search a graph of \(n\) vertices and \(m\) edges.</p>
+
+<p>Informally, it can be described as always proceeding to its first adjacency, then backtracking when it reaches a vertex with no adjacencies which it has not explored already</p>
+
+<blockquote>
+  <p><strong>Algorithm</strong> \(DFS(G, v)\)
+		<strong>Input</strong>  graph \(G\) and start at vertex \(v\) of \(G\)
+		<strong>Output</strong> labeling of the edges of \(G\) in the connected component of v as discovery edges and back edges
+		\(setLabel(v, VISITED)\)
+		<strong>for all</strong> \(e \in G.incidentEdges(v)\)
+		    <strong>if</strong> \(getLabel(e) = UNEXPLORED\)
+		 		   \(w \leftarrow opposite(v,e)\)
+		 		   <strong>if</strong> \(getLabel(w) = UNEXPLORED\)
+		 		 		  \(setLabel(e, DISCOVERY)\)
+		 		 		  \(DFS(G, w)\)
+		 		   <strong>else</strong>
+		 		 		  \(setLabel(e,BACK)\)
+<strong>END ALGORITHM</strong></p>
+</blockquote>
+
+<p><img src="\images\dfsExample.png" alt="dfsExample" /></p>
+
+<p>Image source: <em>Data Structures and Algorithms in Java, Goodrich, Tamassia, Goldwasser</em></p>
+
+<p>It has the following properties</p>
+
+<ul>
+  <li>It visits all vertices and edges in any connected component of a graph</li>
+  <li>The discovery edges form a spanning tree of any graph it traverses</li>
+</ul>
+
+<p>It can be used for path-finding by performing the traversal until the target node is found, then backtracking along the discovery edges to find the reverse of the path</p>
+
+<p>It can be used to identify cycles, as if it ever finds an adjacency to a vertex which it has already explored, (a back edge), the graph must contain a cycle</p>
+
+<h1 id="breadth-first-search">Breadth-first search</h1>
+
+<p>Breadth-first search is a technique to traverse graphs. It takes \(O(n + m)\) time to search a graph of \(n\) vertices and \(m\) edges.</p>
+
+<p>Informally, it can be described as exploring every one of its adjacencies, then proceeding to the first adjacency, then backtracking when it reaches a vertex with no adjacencies which it has not explored already</p>
+
+<blockquote>
+  <p><strong>Algorithm</strong> \(BFS(G)\)
+		<strong>Input</strong> graph \(G\)
+		<strong>Output</strong> labeling of the edges and partition of the vertices of G
+		<strong>for all</strong> \(e \in G.vertices()\)
+		    \(setLabel(u, UNEXPLORED)\)
+		<strong>for all</strong> \(e \in G.edges()\)
+		    \(setLabel(e, UNEXPLORED)\)
+		<strong>for all</strong> \(v \in G.vertices()\)
+		    <strong>if</strong> \(getLabel(v) = UNEXPLORED\)
+		 		   \(BFS(G,v)\)
+<strong>END ALGORITHM</strong></p>
+</blockquote>
+
+<p><img src="\images\bfsExample.png" alt="bfsExample" /></p>
+
+<p>Image source: <em>Data Structures and Algorithms in Java, Goodrich, Tamassia, Goldwasser</em></p>
+
+<p>It has the following properties</p>
+
+<ul>
+  <li>It visits all vertices and edges in any connected component of a graph</li>
+  <li>The discovery edges form a spanning tree of any graph it traverses</li>
+  <li>The path between any two vertices in the spanning tree of discovery edges it creates is the shortest path between them in the graph</li>
+</ul>
+
+<p>It can be used for path-finding by performing the traversal until the target node is found, then backtracking along the discovery edges to find the reverse of the path</p>
+
+<p>It can be used to identify cycles, as if it ever finds an adjacency to a vertex which it has already explored, (a back edge), the graph must contain a cycle</p>
+
+<h1 id="directed-graphs">Directed graphs</h1>
+
+<p>Directed graphs (digraphs) are graphs where every edge is directed. It can be applied to dependency and scheduling problems. When representing it in concrete implementations, we tend to keep in and out edges separately</p>
+
+<p>It has the following properties:</p>
+
+<ul>
+  <li>If a simple directed graph has \(m\) edges and $n$ vertices, then \(m \leq n \cdot (n-1)\), since every vertex can connect to every other vertex bar itself</li>
+</ul>
+
+<p>There is more terminology specifically about digraphs:</p>
+
+<ul>
+  <li>
+    <p>One vertex is said to be reachable from the other if there exists a directed path from the other to it</p>
+  </li>
+  <li>
+    <p>A digraph is said to be strongly connected if each vertex is reachable from every other vertex</p>
+    <ul>
+      <li>We can identify strong connectivity by running DFS or BFS, and seeing if the vertex is ever reached in the traversal. This has a running time of \(O(n+m)\)</li>
+      <li>It is also possible to create maximal subgraphs with every vertex being reachable in \(O(n+m)\) time, but this is more involved</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="transitive-closure">Transitive closure</h2>
+
+<p>The transitive closure provides reachability information about a digraph</p>
+
+<p>Given a digraph \(G\), the transitive closure of \(G\) is the digraph \(G*\) such that</p>
+
+<ul>
+  <li>\(G*\) has the same vertices as \(G\)</li>
+  <li>If \(G\) has a directed path from \(u\) to \(v\), and \(u \neq v\), then \(G*\) has a directed edge from \(u\) to \(v\)</li>
+</ul>
+
+<p>Informally, this means that every pair of vertices with a path between them is adjacent</p>
+
+<p><img src="\images\transitiveClosure.png" alt="transitiveClosure" /></p>
+
+<p>Image source: <em>Data Structures and Algorithms in Java, Goodrich, Tamassia, Goldwasser</em></p>
+
+<p>We can naively compute this by performing DFS for each vertex in graph to identify every reachable edge from it, then setting edges between them. However, this is very slow, being \(O(n \cdot (n+m))\) time.</p>
+
+<p>Instead, we can use the Floyd-Warshall algorithm, which is a dynamic programming solution:</p>
+
+<p><img src="\images\floydWarshall.png" alt="floydWarshall" /></p>
+
+<p>Image source: <em>Data Structures and Algorithms in Java, Goodrich, Tamassia, Goldwasser</em></p>
+
+<p>We build up from \(1\) to \(k\), starting with the base case of the initial graph, which only has the initial adjacencies. We then add edges between any included nodes with path length two between them.</p>
+
+<p>With each iteration, we introduce a new node considered in the temporary graph, and ensure that all edges within this temporary graph are transitively closed.</p>
+
+<p>Since at the end of every step, every node is transitively closed, when all nodes are included, the entire graph is transitively closed</p>
+
+<blockquote>
+  <p><strong>Algorithm</strong> \(FloydWarshall(G)\)
+		<strong>Input</strong> digraph \(G\)
+		<strong>Output</strong> transitive closure \(G^*\) of \(G\)
+		\(i \leftarrow 1\)
+		<strong>for all</strong> \(v \in G.vertices()\)
+		    denote \(v\) as \(v_i\)
+		    \(i \leftarrow i + 1\)
+		\(G_0 \leftarrow G\)
+		<strong>for</strong> \(k \leftarrow 1\) <strong>to</strong> \(n\) <strong>do</strong>
+		    \(G_k \leftarrow G_{k-1}\)
+		 		   <strong>for</strong> \(i\leftarrow 1\) <strong>to</strong> \(n(i\neq k)\) <strong>do</strong>
+		 		 		  <strong>for</strong> \(j \leftarrow 1\) <strong>to</strong> \(n(j\neq i, k)\) <strong>do</strong>
+		 		 		 		 <strong>if</strong> \(G_{k-1}.areAdjacent(v_i,v_k)\)  \(\&amp;\) \(G_{k-1}.areAdjacent(v_k,v_j)\)
+		 		 		 		 		<strong>if</strong> \(¬G_{k-1}.areAdjacent(v_i,v_j)\)
+		 		 		 		 		    \(G_k.insertDirectedEdge(v_i,v_j,k)\)
+		    <strong>return</strong> \(G_n\)
+<strong>END ALGORITHM</strong></p>
+</blockquote>
+
+<p>Running time is \(O(n^3)\), which is better than \(O(n \cdot (n+m))\) for non-sparse graphs (often graphs have many more edges than nodes)</p>
+
+<h2 id="topological-ordering">Topological ordering</h2>
+
+<p>A graph has a topological ordering if it is directed and acyclic</p>
+
+<ul>
+  <li>Having cycles would informally be self-dependencies</li>
+  <li>This can be done in \(O(m+n)\) time using DFS</li>
+</ul>
+
+<p>Topological ordering means the same thing as a total relation in CS130, if the graph is considered as a set of relations</p>
+
+
+                
+                <footer class="site-footer">
+                    
+                    <span class="site-footer-owner"><a href="https://github.com/CSRG-Group/dcs-notes.github.io">dcs-notes.github.io</a> is maintained by <a href="https://github.com/CSRG-Group">CSRG-Group</a>.</span>
+                    
+                </footer>
+            </main>
+        </div>
+    </div>
+</body>
+
+</html>
